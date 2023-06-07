@@ -1,24 +1,26 @@
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00030000, LENGTH = 0x00010000
-  RAM   (wx) : ORIGIN = 0, LENGTH = 0x00100000
+  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
+  RAM   (wx) : ORIGIN = 0x20000000, LENGTH = 320K
 }
 
 
 SECTIONS
 {
-  __FLASH_segment_start__ = 0x00030000;
-  __FLASH_segment_end__   = 0x00040000;
-  __RAM_segment_start__   = 0x10000000;
-  __RAM_segment_end__     = 0x10008000;
+  __FLASH_segment_start__ = 0x08050000;
+  __FLASH_segment_end__   = 0x08100000;
+  /*__RAM_segment_start__   = 0x20011800;*/
+ __RAM_segment_start__   = 0x20000000;
+  __RAM_segment_end__     = 0x20050000;
 
-  __HEAPSIZE__ = 128;
+  __HEAPSIZE__ = 0x400;
 
   __preamble_load_start__ = __FLASH_segment_start__;
   .preamble __FLASH_segment_start__ : AT(__FLASH_segment_start__)
   {
     __preamble_start__ = .;
-    *(.preamble .preamble.*)
+    *preamble*
+    /**(.preamble .preamble.*)*/
   }
   __preamble_end__ = __preamble_start__ + SIZEOF(.preamble);
 
@@ -164,8 +166,16 @@ SECTIONS
   .data ALIGN(__fast_run_end__ , 4) : AT(ALIGN(__fast_load_start__ + SIZEOF(.fast) , 4))
   {
     __data_start__ = .;
+    __data_rel_start__ = .;
+      
+    *(.data.rel)
+
+    __data_rel_end__ = .;
+    
     *(.data .data.* .gnu.linkonce.d.*)
+
   }
+
   __data_end__ = __data_start__ + SIZEOF(.data);
 
   __data_load_end__ = __data_load_start__ + SIZEOF(.data);
@@ -199,11 +209,14 @@ SECTIONS
   .heap ALIGN(__non_init_end__ , 4) (NOLOAD) : AT(ALIGN(__non_init_end__ , 4))
   {
     __heap_start__ = .;
+    end = .;
     *(.heap)
     . = ALIGN(MAX(__heap_start__ + __HEAPSIZE__ , .), 4);
   }
   __heap_end__ = __heap_start__ + SIZEOF(.heap);
 
+
+  
   __data_size__ =  __heap_end__ - __RAM_segment_start__;
 
 }

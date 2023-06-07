@@ -1,7 +1,7 @@
     .text
     .align 4
     .syntax unified
-    .section .preamble
+    //.section .preamble
 
     /* Define public symbols.  */
     .global __txm_module_preamble
@@ -19,7 +19,7 @@ __txm_module_preamble:
     .dc.l      0x1                                              // Module Minor Version
     .dc.l      32                                               // Module Preamble Size in 32-bit words
     .dc.l      0x12345678                                       // Module ID (application defined)
-    .dc.l      0x02000007                                       // Module Properties where:
+    .dc.l      0x02000004                                       // Module Properties where:
                                                                 //   Bits 31-24: Compiler ID
                                                                 //           0 -> IAR
                                                                 //           1 -> ARM

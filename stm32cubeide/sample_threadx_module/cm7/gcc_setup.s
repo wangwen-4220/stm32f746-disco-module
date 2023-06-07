@@ -101,6 +101,35 @@ crt0_memory_copy:
     cmp     r2, r1
     beq     memory_copy_done
     sub     r2, r2, r1
+
+/*****adjust the global initialized value*****/
+data_rel_copy_loop:
+  	ldr    	r6, [r0]
+    add     r0, r0, #4
+
+    cmp     r6, r4          		   	// Is it in the code or data area?
+    blt     data_is_flash_address      	// If less than, it is a code address, the offset should be
+    sub     r6, r6, r4      			// Compute offset of data area
+    add     r6, r6, r9      			// Build address based on the loaded data address
+    b       store_data   				// Finished data initialize
+data_is_flash_address:
+	sub     r6, r6, r3      			// Compute offset of code area
+    add     r6, r6, r5     				// Build address based on the loaded code address
+store_data:
+    str    	r6, [r1]
+    add     r1, r1, #4
+    sub     r2, r2, #4
+
+	ldr 	r7, =__data_rel_end__
+	sub 	r7,r7, r4
+	add 	r7,r7, r9
+	cmp 	r1, r7
+	bne 	data_rel_copy_loop
+
+    cmp     r2, #0
+    beq     memory_copy_done
+
+/***********************************************/
 memory_copy_loop:
     ldrb    r3, [r0]
     add     r0, r0, #1
