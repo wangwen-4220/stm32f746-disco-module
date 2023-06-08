@@ -255,10 +255,12 @@ int i;
 }
 
 /* this two values are only to test the global pointer and global buffer variety address*/
+#if 1
 char buffer[100];
 volatile char* pBuffer = buffer;
 volatile char* pBuffer11 = &buffer[1];
 volatile char* pBuffer22 = (char*)thread_0_entry;
+#endif
 extern UART_HandleTypeDef huart1;
 void    thread_0_entry(ULONG thread_input)
 {
@@ -268,8 +270,9 @@ uint8_t test[10]="hello";
 
 
 	/*printf not supported, because the standard library by default are not PIC*/
-	printf("buffer address: %p, buffer address via pBuffer: %p \n", buffer, pBuffer);
+	//printf("buffer address: %p, buffer address via pBuffer: %p \n", buffer, pBuffer);
 
+#if 1
 	assert(buffer == pBuffer );
 
 	assert(&buffer[1] == pBuffer11 );
@@ -304,6 +307,16 @@ uint8_t test[10]="hello";
 	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
 
 	hex2char((UINT)&buffer[1], test);
+	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+
+#endif
+	hex2char((UINT)tmp1, test);
+	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+
+
+	hex2char((UINT)tmp2, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
 	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
 
