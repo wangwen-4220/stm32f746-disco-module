@@ -129,11 +129,11 @@ rel_dyn_relocate:
 	ldr     r3, =__FLASH_segment_start__
 	ldr		r2, =__reldyn_load_start__	/* r2 <-  __rel_dyn_start */
 	sub     r2, r2, r3
-    add     r2, r2, r5
+    	add     r2, r2, r5
 
 	ldr		r6, =__reldyn_end__	       /* r6 <-  __rel_dyn_end */
 	sub     r6, r6, r3
-    add     r6, r6, r5
+    	add     r6, r6, r5
 
 fixloop:
 	ldmia	r2!, {r0-r1}		/* (r0,r1) <- (r2) */
@@ -145,8 +145,8 @@ fixloop:
 
 	cmp     r0, r4
 	blt     fixnext         // If less than, it is a code address,we do nothing
-    sub     r0, r0, r4      // Compute offset of data area
-    add     r0, r0, r9      // Build address based on the loaded data address
+    	sub     r0, r0, r4      // Compute offset of data area
+    	add     r0, r0, r9      // Build address based on the loaded data address
 	ldr		r1, [r0]            // get r0 content
 
 /* step2. needs to caculate  the content of r0 address offset */
@@ -155,7 +155,7 @@ fixloop:
 	cmp     r1, r4
 	blt     flash_offset	// If less than, it is a code content
 	sub     r1, r1, r4      // Compute offset of data area
-    add     r1, r1, r9      // Build address based on the loaded data address
+    	add     r1, r1, r9      // Build address based on the loaded data address
 	str		r1, [r0]  			//update r0 content
 	b 		fixnext
 
@@ -169,7 +169,7 @@ fixnext:
 	blo	fixloop //r2 < r6
 
 relocate_done:
-    bx      lr
+    	bx      lr
 
 
 /*******************************************/
