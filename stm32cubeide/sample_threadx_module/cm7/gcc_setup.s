@@ -101,40 +101,6 @@ crt0_memory_copy:
     cmp     r2, r1
     beq     memory_copy_done
     sub     r2, r2, r1
-
- /*****adjust the global initialized value*****/
-
-    ldr 	r7, =__data_rel_end__
-	sub 	r7,	r7, r4
-	add 	r7,	r7, r9
-	cmp 	r1, r7
-	beq     memory_copy_loop
-
-data_rel_copy_loop:
-  	ldr    	r6, [r0]
-    add     r0, r0, #4
-
-    cmp     r6, r4          		   	// Is it in the code or data area?
-    blt     data_is_flash_address      	// If less than, it is a code address, the offset should be
-    sub     r6, r6, r4      			// Compute offset of data area
-    add     r6, r6, r9      			// Build data based on the loaded data address
-    b       store_data   				// Finished data initialize
-data_is_flash_address:
-	sub     r6, r6, r3      			// Compute offset of code area
-    add     r6, r6, r5     				// Build data based on the loaded code address
-store_data:
-	str    	r6, [r1]
-	add     r1, r1, #4
-	sub     r2, r2, #4
-
-	cmp 	r1, r7
-	bne 	data_rel_copy_loop
-
-	cmp     r2, #0
-	beq     memory_copy_done
-
-/***********************************************/
-
 memory_copy_loop:
     ldrb    r3, [r0]
     add     r0, r0, #1
@@ -154,7 +120,59 @@ crt0_memory_set:
     add     r0, r0, #1
     b       crt0_memory_set
 memory_set_done:
+    //bx      lr
+
+/*relocate rel.dyn */
+/*******************************************/
+
+rel_dyn_relocate:
+	ldr     r3, =__FLASH_segment_start__
+	ldr		r2, =__reldyn_load_start__	/* r2 <-  __rel_dyn_start */
+	sub     r2, r2, r3
+    add     r2, r2, r5
+
+	ldr		r6, =__reldyn_end__	       /* r6 <-  __rel_dyn_end */
+	sub     r6, r6, r3
+    add     r6, r6, r5
+
+fixloop:
+	ldmia	r2!, {r0-r1}		/* (r0,r1) <- (r2) */
+	and	r1, r1, #0xff
+	cmp	r1, #23  				/*R_ARM_RELATIVE = 23*/
+	bne	fixnext
+
+/* step1.needs to judge if r0 is ram address,jump if the address is flash address */
+
+	cmp     r0, r4
+	blt     fixnext         // If less than, it is a code address,we do nothing
+    sub     r0, r0, r4      // Compute offset of data area
+    add     r0, r0, r9      // Build address based on the loaded data address
+	ldr		r1, [r0]            // get r0 content
+
+/* step2. needs to caculate  the content of r0 address offset */
+/* relative fix: increase location by offset */
+
+	cmp     r1, r4
+	blt     flash_offset	// If less than, it is a code content
+	sub     r1, r1, r4      // Compute offset of data area
+    add     r1, r1, r9      // Build address based on the loaded data address
+	str		r1, [r0]  			//update r0 content
+	b 		fixnext
+
+flash_offset:
+	sub     r1, r1, r3      // Compute offset of code area
+	add     r1, r1, r5      // Build address based on the loaded code address
+	str		r1, [r0]
+
+fixnext:
+	cmp	r2, r6
+	blo	fixloop //r2 < r6
+
+relocate_done:
     bx      lr
+
+
+/*******************************************/
 
     /* Setup attibutes of heap section so it doesn't take up room in the elf file */
     .section .heap, "wa", %nobits

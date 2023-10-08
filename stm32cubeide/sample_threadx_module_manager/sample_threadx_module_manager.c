@@ -87,9 +87,9 @@ void    module_manager_entry(ULONG thread_input)
 
 #if 1
     /* Load the module that is already there, in this example it is placed there by the multiple image download.  */
-    //txm_module_manager_in_place_load(&my_module, "my module", (VOID *) 0x080F0000);
+    txm_module_manager_in_place_load(&my_module, "my module", (VOID *) 0x080F0000);
 
-    txm_module_manager_memory_load(&my_module, "my module", (VOID *) 0x080f0000);
+    //txm_module_manager_memory_load(&my_module, "my module", (VOID *) 0x080f0000);
 
     /* Enable 128 byte read/write shared memory region at 0x20008000.  */
     txm_module_manager_external_memory_enable(&my_module, (void *) 0x20008000, 128, TXM_MODULE_MANAGER_SHARED_ATTRIBUTE_WRITE);
@@ -101,6 +101,7 @@ void    module_manager_entry(ULONG thread_input)
     tx_thread_sleep(1000);
 #endif
 
+#if 0
     /* Stop the module.  */
     txm_module_manager_stop(&my_module);
 
@@ -116,6 +117,7 @@ void    module_manager_entry(ULONG thread_input)
 
     /* Start the module again.  */
     txm_module_manager_start(&my_module);
+#endif
 
     /* Now just spin...  */
     while(1)

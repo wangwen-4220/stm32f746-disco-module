@@ -260,7 +260,47 @@ char buffer[100];
 volatile char* pBuffer = buffer;
 volatile char* pBuffer11 = &buffer[1];
 volatile char* pBuffer22 = (char*)thread_0_entry;
+volatile char* pBuffer33 = (char*)thread_1_entry;
+volatile char* pBuffer44 = (char*)thread_2_entry;
 #endif
+
+#if 1
+
+/*
+Structure and enumeration definitons
+*/
+
+typedef enum
+{
+Field_1 = 1,
+Field_2,
+Field_3,
+Field_4,
+}ENUM_TEST_t;
+
+typedef struct
+{
+char appName;
+int appId;
+char appDescription;
+}App_Test_t;
+
+typedef struct
+{
+int test_A;
+unsigned char testChArray[100];
+const char *text;
+int test_B;
+ENUM_TEST_t *T1;
+App_Test_t *app;
+}GCC_TEST_t;
+
+/* Statically initializing struct globally */
+
+GCC_TEST_t user_test = {10,"struct member testChArray","const char * text",27,NULL,NULL};
+
+#endif
+
 extern UART_HandleTypeDef huart1;
 void    thread_0_entry(ULONG thread_input)
 {
@@ -273,52 +313,77 @@ uint8_t test[10]="hello";
 	//printf("buffer address: %p, buffer address via pBuffer: %p \n", buffer, pBuffer);
 
 #if 1
-	assert(buffer == pBuffer );
+	//assert(buffer == pBuffer );
 
-	assert(&buffer[1] == pBuffer11 );
+	//assert(&buffer[1] == pBuffer11 );
 
-	assert((char*)thread_0_entry == pBuffer22 );
+	//assert((char*)thread_0_entry == pBuffer22 );
+	HAL_UART_Transmit(&huart1, "***********test1. pointer***********",strlen("***********test1. pointer***********"), 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
+	/*pubffer address*/
 	hex2char((UINT)&pBuffer, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
 	hex2char((UINT)buffer, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
+	/*pubffer value*/
 	hex2char((UINT)pBuffer, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
-
-	pBuffer++;
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
 	hex2char((UINT)thread_0_entry, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
 	hex2char((UINT)pBuffer22, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
-
-	hex2char((UINT)pBuffer11, test);
-	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
-
-	hex2char((UINT)&buffer[1], test);
-	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
 
 #endif
-	hex2char((UINT)tmp1, test);
-	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
 
 
-	hex2char((UINT)tmp2, test);
+#if 1
+
+	HAL_UART_Transmit(&huart1, "***********test2. print struct member****",
+								strlen("***********test2. print struct member****"), 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+	hex2char((UINT)user_test.test_A, test);
 	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
-	HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+
+	//hex2char((UINT)user_test.testChArray, test);
+	//HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	//HAL_UART_Transmit(&huart1, (uint8_t*)"\n", 1, 0xFFFF);
+
+
+	HAL_UART_Transmit(&huart1, user_test.testChArray, strlen("struct member testChArray"), 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\n\r", 2, 0xFFFF);
+
+
+	HAL_UART_Transmit(&huart1, user_test.text, strlen("const char * text"), 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+	hex2char((UINT)(user_test.test_B), test);
+	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+	hex2char((UINT)(user_test.T1), test);
+	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+	hex2char((UINT)(user_test.app), test);
+	HAL_UART_Transmit(&huart1, &test[0], 8, 0xFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, 0xFFFF);
+
+#endif
 
     /* This thread simply sits in while-forever-sleep loop.  */
     while(1)
